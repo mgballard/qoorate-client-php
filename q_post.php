@@ -7,7 +7,7 @@ if(isset($qoorate_embed)){
     error_log('we are an embed, let us be called manually');
 } else {
     error_log('web request');
-    qooratePrepareProxyCaller(null);
+    qooratePrepareProxyCaller(null, null);
 }
 
 // url-ify an array of fields
@@ -80,7 +80,7 @@ function qooratePrepareProxyCaller($action) {
         error_log ($url);
     } else if ($is_embed) {
         error_log ("embed action set:" . $action);
-        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&page=' . $page;
+        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $short .'&page=' . $page;
     }else{
         error_log ("get action set");
         $get_vars = '';

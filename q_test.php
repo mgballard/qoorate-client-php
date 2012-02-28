@@ -17,13 +17,13 @@ require_once('q_post.php');
     <title>Qoorate test (Brubeck)</title>
     <!-- These values should really come from a call -->
     <?php
-    qooratePrepareProxyCaller('embed_head')
+    qooratePrepareProxyCaller('embed_head', 'page1')
     ?>
 </head>
 <body>
     <section>
     <?php
-    qooratePrepareProxyCaller('embed_content')
+    qooratePrepareProxyCaller('embed_content', 'page1')
     ?>
     </section>
 </body>
