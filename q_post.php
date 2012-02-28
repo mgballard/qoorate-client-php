@@ -1,6 +1,8 @@
 <?PHP
 // pull in our configuration
-require_once 'q_post.conf.php';
+if (file_exists('q_post.conf.php')) {
+    require_once 'q_post.conf.php';
+}
 
 // see if we are a web request or a local include
 if(isset($qoorate_embed)){
@@ -19,17 +21,13 @@ function qoorate_urlify_fields($fields) {
 }
 
 // figure out our url for the proxy call
-function qooratePrepareProxyCaller($action) {
+function qooratePrepareProxyCaller($action, $short) {
     $baseUrl = QOORATE_EMBED_URI; 
 
-    // remove any hashes in the url
-    $p = $_SERVER['REQUEST_URI'];
-    $a_p = explode ( '#' , $p );
-    $p = $a_p[0];
-
-    // get the unique value for the request
-    // TODO: improve this, plugin will need to give us this information    
-    $page = md5($p);
+    if (isset($short)) {
+        // remove any hashes in the url
+        $location = md5($short);
+    }
     
     // Our clients unique key and secret for qoorate api
     $key = QOORATE_API_KEY;
@@ -80,7 +78,7 @@ function qooratePrepareProxyCaller($action) {
         error_log ($url);
     } else if ($is_embed) {
         error_log ("embed action set:" . $action);
-        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $short .'&page=' . $page;
+        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&location=' . $location;
     }else{
         error_log ("get action set");
         $get_vars = '';
