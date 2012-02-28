@@ -1,17 +1,16 @@
 <?PHP
-//if(!isset($_SESSION)) {
-//    session_start();
-//}
+// pull in our configuration
 require_once 'q_post.conf.php';
 
+// see if we are a web request or a local include
 if(isset($qoorate_embed)){
     error_log('we are an embed, let us be called manually');
 } else {
-    error_log('proxy call');
+    error_log('web request');
     qooratePrepareProxyCaller(null);
 }
 
-//url-ify an array of fields
+// url-ify an array of fields
 function qoorate_urlify_fields($fields) {
     $fields_string = '';
     foreach($fields as $key=>$value) { $fields_string .= $key.'='.urlencode($value).'&'; }
@@ -19,28 +18,46 @@ function qoorate_urlify_fields($fields) {
     return $fields_string;    
 }
 
+// figure out our url for the proxy call
 function qooratePrepareProxyCaller($action) {
     $baseUrl = QOORATE_EMBED_URI; 
-    // remove &q=loggoff 
+
+    // remove any hashes in the url
     $p = $_SERVER['REQUEST_URI'];
     $a_p = explode ( '#' , $p );
     $p = $a_p[0];
-    
+
+    // get the unique value for the request
+    // TODO: improve this, plugin will need to give us this information    
     $page = md5($p);
     
-    $key = '1';
-    $secret = '2';
-    $short = 'sample';
-    $is_post = false;
-    $is_embed = false;
-    $url = '';
+    // Our clients unique key and secret for qoorate api
+    $key = QOORATE_API_KEY;
+    $secret = QOORATE_API_SECRET;
+
+
+    $url = ''; // URL to request with proxy
     
+    // Some control flow flags
+    $is_embed = false;
+    $is_upload = false;
+    $is_post = false;
+    if(strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+        $is_post = true;
+    }
+    // set our flags and get our action
+    // all requests need an action
     if(isset($action)){
+        // we are a the first call to a page
         $is_embed = true;
     } else if(isset($_POST['action'])) {
+        // we are a jquery request
         $action = $_POST['action'];
         $is_post = true;
     } else if(isset($_GET['action'])) {
+        // we don't usually get here
+        // the client should use JSONP for AJAX get requests
+        // or access resources directly from api server
         $action = $_GET['action'];
     }
     
@@ -53,6 +70,7 @@ function qooratePrepareProxyCaller($action) {
             $baseUrl = QOORATE_EMBED_URI; 
         } else if($action == 'uploader'){
             $baseUrl = QOORATE_UPLOADER_URI;
+            $is_upload = true;
         } else {
             $baseUrl = QOORATE_FEED_URI;
         }
@@ -62,7 +80,7 @@ function qooratePrepareProxyCaller($action) {
         error_log ($url);
     } else if ($is_embed) {
         error_log ("embed action set:" . $action);
-        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $short . '&page=' . $page;
+        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&page=' . $page;
     }else{
         error_log ("get action set");
         $get_vars = '';
@@ -78,24 +96,24 @@ function qooratePrepareProxyCaller($action) {
         $url = $baseUrl . ($get_vars =='' ? '' : '?' . $get_vars);
         error_log ($url);
     }
-    qoorateProxyCaller($url);
+    qoorateProxyCaller($url, $is_post, $is_upload);
 }
 
-function qoorateProxyCaller($url) {
+function qoorateProxyCaller($url, $is_post, $is_upload) {
     
     // Change these configuration options if needed, see above descriptions for info.
-    $enable_jsonp    = false;
-    $enable_native   = true;
     $valid_url_regex = '/.*/';
 
-    $is_multipart = false;
     $file_path = '';
     $file_name = '';
-    $file_content_array = array();
 
     $header = '';
+    $cookie = null;
     $contents = '';
+    $status = null;
+    
     $temp_file_name = null;
+    
     if ( !$url ) {
 
         // Passed url not specified.
@@ -109,33 +127,18 @@ function qoorateProxyCaller($url) {
         $status = array( 'http_code' => 'ERROR' );
 
     } else {
-        error_log($url);
-        if ( isset($_GET['action']) && $_GET['action']=='uploader' && strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
-            // we are a file upload
-            $is_multipart = true;
 
+        if ($is_upload) {
+            // we are a file upload
+            // save our file to the temp directory
+            // TODO: This only handles new browser XHR requests, not traditional file upload
             $temp_file_name = tempnam(sys_get_temp_dir(), 'QOO');
             $file_handle = fopen($temp_file_name, 'wb');
-            
             $file_name = $_REQUEST['qqfile'];
             $input = fopen("php://input", "rb");
-            
-            //$file_handle = tmpfile();
             stream_copy_to_stream($input, $file_handle);
             fclose($input);
-            // keep us open
             fclose($file_handle);
-
-            /* 
-            $post_fields = array(
-                $file_name => "@file_$path;type=$mime_type"
-            );
-            error_log( print_r($post_fields, true) );
-            error_log( "mime_type: $mime_type" );
-            
-            curl_setopt( $ch, CURLOPT_POST, 1 );
-            curl_setopt( $ch, CURLOPT_POSTFIELDS, $post_fields );
-            */
         }
 
         // proxy our cookies
@@ -148,33 +151,34 @@ function qoorateProxyCaller($url) {
                 $cookie[] = SID;
             }
             $cookie = implode( '; ', $cookie );
-
         }
 
-        $ch = curl_init( $url );
         $post = "";
-        if($is_multipart) {
+        if($is_upload) {
+            // get our mime type from the file, not the extension
             $mime_type = mime_content_type ( $temp_file_name );
-            $file_size = filesize($temp_file_name);
-            $content_length = $file_size + strlen($file_name);
+
+            // read the data from the file
             $file_handle = fopen($temp_file_name, 'rb');
-            $data = '';
-            //$data .= "--" . $mime_boundary . $eol;
             while (!feof($file_handle)) {
-                //$data .= chunk_split(base64_encode(fread($file_handle, 1024))) . $eol;
-                $data .= fread($file_handle, 4096);
+                $post .= fread($file_handle, 4096);
             }
             fclose ($file_handle);
+
+            // delete the file
             unlink($temp_file_name);
-            error_log($data);
-            error_log(strlen($data));
-            $post = $data;
+
+            error_log($post);
+            error_log(strlen($post));
         }else {
+            // prepare our post data for the content
             $post = qoorate_urlify_fields($_POST);
         }
 
-        if ( strtolower($_SERVER['REQUEST_METHOD']) == 'post' ) {
-            // we are a normal post request
+        // Make our request with curl
+        $ch = curl_init( $url );
+        if ($is_post) {
+            // we are a post request
             error_log(print_r($_POST, true));
             curl_setopt( $ch, CURLOPT_POST, 1 );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, $post );
