@@ -59,7 +59,7 @@ class plgContentJ_qrate extends JPlugin
        if ( $view != 'article' ) return;
 
        // get current article id
-       $location = md5( $row->id );
+       $location = $row->id;
 
        // Get plugin parameters
        $plugin = &JPluginHelper::getPlugin( 'content', $this->plg_name );
@@ -86,12 +86,12 @@ class plgContentJ_qrate extends JPlugin
        $q_contribs_txt = $pluginParams->get('qContributions', '');
 
        $q_proxy_uri = JURI::base().'plugins'.DS.'content'.DS.'proxy'.DS.'q_post.php';
-        
 	   $qoorate_embed = true;
 
-       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.conf.php');
+       // Includes
+       //require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.conf.php');
+       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.php');
 
-       //var_dump($q_proxy_uri);
 
        // Set constants for q_post.php
        define( 'QOORATE_API_KEY', $q_api_key );
@@ -102,11 +102,9 @@ class plgContentJ_qrate extends JPlugin
        define('QOORATE_FEED_URI', $q_feed);
        define('QOORATE_EMBED_URI', $q_embed_uri);
        define('QOORATE_JSON_URI', $q_json_uri);
-       // Includes
-       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.php');
-
+       
        // get scripts to add to head
-       $q_data = qooratePrepareProxyCaller( 'json', $q_api_key ); 
+       $q_data = qooratePrepareProxyCaller( 'json', $location);
        $q_data = json_decode($q_data);
        $q_head_scripts = $q_data->head;
 
@@ -168,6 +166,8 @@ class plgContentJ_qrate extends JPlugin
                $document->addScript($src, $type);
            }
        }
+       
+       // Add Qoorate to article body
        $row->text .= $q_data->content ;
    }
 }
