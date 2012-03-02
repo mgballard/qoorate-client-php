@@ -1,13 +1,38 @@
 <?PHP
-// pull in our configuration
-if (file_exists('q_post.conf.php')) {
-    require_once 'q_post.conf.php';
-}
+
 // see if we are a web request or a local include
 if(isset($qoorate_embed)){
     error_log('we are an embed, let us be called manually');
 } else {
     error_log('web request');
+    // pull in our configuration
+    if (file_exists('q_post.conf.php')) {
+        include 'q_post.conf.php';
+    }
+    error_log('QOORATE_API_KEY');
+    error_log(QOORATE_API_KEY);
+    
+    error_log('QOORATE_API_SECRET');
+    error_log(QOORATE_API_SECRET);
+    
+    error_log('QOORATE_SHORTNAME');
+    error_log(QOORATE_SHORTNAME);
+    
+    error_log('QOORATE_BASE_URI');
+    error_log(QOORATE_BASE_URI);
+    
+    error_log('QOORATE_UPLOADER_URI');
+    error_log(QOORATE_UPLOADER_URI);
+    
+    error_log('QOORATE_FEED_URI');
+    error_log(QOORATE_FEED_URI);
+    
+    error_log('QOORATE_EMBED_URI');
+    error_log(QOORATE_EMBED_URI);
+    
+    error_log('QOORATE_JSON_URI');
+    error_log(QOORATE_JSON_URI);
+
     print qooratePrepareProxyCaller(null, null);
 }
 
@@ -21,6 +46,36 @@ function qoorate_urlify_fields($fields) {
 
 // figure out our url for the proxy call
 function qooratePrepareProxyCaller($action, $short) {
+error_log('qooratePrepareProxyCaller *********************************');
+error_log('QOORATE_API_KEY');
+error_log(QOORATE_API_KEY);
+
+error_log('QOORATE_API_SECRET');
+error_log(QOORATE_API_SECRET);
+
+error_log('QOORATE_SHORTNAME');
+error_log(QOORATE_SHORTNAME);
+
+error_log('QOORATE_BASE_URI');
+error_log(QOORATE_BASE_URI);
+
+error_log('QOORATE_UPLOADER_URI');
+error_log(QOORATE_UPLOADER_URI);
+
+error_log('QOORATE_FEED_URI');
+error_log(QOORATE_FEED_URI);
+
+error_log('QOORATE_EMBED_URI');
+error_log(QOORATE_EMBED_URI);
+
+error_log('QOORATE_JSON_URI');
+error_log(QOORATE_JSON_URI);
+error_log('qooratePrepareProxyCaller *******************************');
+
+
+
+
+
     $baseUrl = QOORATE_EMBED_URI; 
     $location = '';
     if (isset($short)) {
@@ -105,7 +160,6 @@ function qooratePrepareProxyCaller($action, $short) {
 }
 
 function qoorateProxyCaller($url, $is_post, $is_upload) {
-    
     // Change these configuration options if needed, see above descriptions for info.
     $valid_url_regex = '/.*/';
 

@@ -24,8 +24,6 @@ class plgContentJ_qrate extends JPlugin
     // Joomla! 1.5
     function onPrepareContent( &$row, &$params, $page = 0 )
     {
-        //$row->text = 'HEHEHE';
-    
         global $mainframe;
 
         if( ! isset( $_COOKIE ) || ! array_key_exists( "QOOID", $_COOKIE ) ) 
@@ -69,42 +67,65 @@ class plgContentJ_qrate extends JPlugin
        $q_api_key = $pluginParams->get('qKey', '');
        $q_api_secret = $pluginParams->get('qSecret', '');
        $q_shortname = $pluginParams->get('qShortname', '');
+       $q_base = $pluginParams->get('qBaseURI', '');
+       $q_upload = $pluginParams->get('qUploadURI', '');
+       $q_feed = $pluginParams->get('qFeedURI', '');
+       $q_embed_uri = $pluginParams->get('qEmbedURI', '');
+       $q_json_uri = $pluginParams->get('qJSON_URI', '');
+       $q_api_uri = $pluginParams->get('qAPI_URI', '');
+       $q_xhr_proxy = $pluginParams->get('qXHR_PROXY_URI', '');
+       $q_xhr_upload = $pluginParams->get('qXHR_UPLOAD_URI', '');
+       $q_post_len = $pluginParams->get('qPostLen', '');
+       $q_flag_msg = $pluginParams->get('qFlagSuccess', '');
+       $q_signIn_msg = $pluginParams->get('qSignIn', '');
+       $q_signedIn_msg = $pluginParams->get('qSignedIn', '');
+       $q_OK = $pluginParams->get('qOK', '');
+       $q_cancel = $pluginParams->get('qCancel', '');
+       $q_logout_msg = $pluginParams->get('qLogout', '');
+       $q_contrib_txt = $pluginParams->get('qContribution', '');
+       $q_contribs_txt = $pluginParams->get('qContributions', '');
 
+       $q_proxy_uri = JURI::base().'plugins'.DS.'content'.DS.'proxy'.DS.'q_post.php';
+        
 	   $qoorate_embed = true;
 
-       // Includes
        require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.conf.php');
-       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.php');
 
+       //var_dump($q_proxy_uri);
 
        // Set constants for q_post.php
        define( 'QOORATE_API_KEY', $q_api_key );
        define( 'QOORATE_API_SECRET', $q_api_secret );
        define( 'QOORATE_SHORTNAME', $q_shortname );
+       define('QOORATE_BASE_URI', $q_base);
+       define('QOORATE_UPLOADER_URI', $q_upload );
+       define('QOORATE_FEED_URI', $q_feed);
+       define('QOORATE_EMBED_URI', $q_embed_uri);
+       define('QOORATE_JSON_URI', $q_json_uri);
+       // Includes
+       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.php');
 
        // get scripts to add to head
        $q_data = qooratePrepareProxyCaller( 'json', $q_api_key ); 
        $q_data = json_decode($q_data);
        $q_head_scripts = $q_data->head;
-$test="";
+
        // Set the javascript configuration
        $document->addScriptDeclaration("
          var qoorateConfig = {
-             QOORATE_URI: 'http://qrate.co',
-             QOORATE_API_URI: 'http://qrate.co/q',
-             PROXY_URI: 'http://jm.summadish.com/plugins/content/proxy/q_post.php',
+             QOORATE_URI: " . "'" . $q_base . "'" .",
+             QOORATE_API_URI: " . "'" . $q_api_uri . "'" .",
+             PROXY_URI: " . "'" . $q_proxy_uri  . "'" .",
 
-             XHR_PROXY_URI: '/q/feed', // if client supports? not yet.
-                                      // would append QOORATE_URI
-             XHR_UPLOAD_URI: '/q/uploader', // if client supports? not yet.
-                                            // would append QOORATE_URI
-             POST_MAX_LEN: 1000
+             XHR_PROXY_URI: " . "'" . $q_xhr_proxy  . "'" .",
+             XHR_UPLOAD_URI: " . "'" . $q_xhr_upload  . "'" .",
+             POST_MAX_LEN: " . "'" . $q_post_len  . "'" ."
          };
 
          var qoorateLang = {
              FLAG_SUCCESS: 'Thank you for your feedback.',
-             SIGNIN: " ."'". $test . "Sign in using',
-             SIGNEDIN: 'Signed in via',    
+             SIGNIN: 'Sign in via',
+             SIGNEDIN: 'Signed in via',
              OK: 'OK',
              CANCEL: 'Cancel',
              LOGOUT: 'Log Out',

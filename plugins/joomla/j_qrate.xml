@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <install version="1.5" type="plugin" group="content" method="upgrade">
 	<name>Qoorate Comments for Joomla</name>
-	<author>JoomlaWorks</author>
+	<author>Qoorate</author>
 	<authorUrl></authorUrl>
 	<copyright></copyright>
 	<creationDate>February 28th, 2012</creationDate>
@@ -12,7 +12,7 @@
        <param name="qKey" type="text" default="" label="API key" description="your API key as provided by Qoorate goes here." />
        <param name="qSecret" type="text" default="" label="API secret"  description="your API secret as provided by Qoorate goes here." />
        <param name="qShortname" type="text" default="" label="API shortname"  description="your API tablename." />
-       <param name="qBaseURI" type="text" default="http://qrate.co" label="Qoorate server base URI" description="Your Qoorate server goes here." />
+       <!--<param name="qBaseURI" type="text" default="http://qrate.co" label="Qoorate server base URI" description="Your Qoorate server goes here." />
        <param name="qUploadURI" type="text" default="http://qrate.co/q/uploader" label="Qoorate server upload URI" description="Your Qoorate server upload location goes here." />
        <param name="qFeedURI" type="text" default="http://qrate.co/q/feed" label="Qoorate server feed URI" description="Your Qoorate server upload location goes here." />
        <param name="qEmbedURI" type="text" default="http://qrate.co/q/embed" label="Qoorate server embed URI" description="Your Qoorate server embed location goes here." />
@@ -20,7 +20,6 @@
        <param name="qAPI_URI" type="text" default="http://qrate.co/q" label="Qoorate API URI" description="API endpoint goes here." />
        <param name="qXHR_PROXY_URI" type="text" default="/q/feed" label="XHR PROXY URI" description="" />
        <param name="qXHR_UPLOAD_URI" type="text" default="/q/uploader" label="XHR UPLOAD URI" description="" />
-       <param name="" type="spacer" />
 
        <param name="qPostLen" type="text" default="1000" label="Max contribution length" description="Max length of a comment post in characters." />
        <param name="qFlagSuccess" type="text" default="Thank you for your feedback." label="Success message" description="Message displayed when contribution is flagged." />
@@ -31,6 +30,8 @@
        <param name="qLogout" type="text" default="Log Out" label="Logout message" description="Text for pop-up cancellation" />
        <param name="qContribution" type="text" default="Contribution" label="Comment identifier" description="" />
        <param name="qContributions" type="text" default="Contributions" label="Header comment identifier" description="" />
+       <param name="qContributionsSignIn" type="text" default="Please sign in to make a contribution." label="Contribute login message" description="" />
+       <param name="qRemoveMsg" type="text" default="Remove" label="Contribute login message" description="" />-->
  </params>
 	<params group="advanced">
 	</params>
@@ -38,9 +39,4 @@
 		<filename plugin="j_qrate">j_qrate.php</filename>
 		<folder>proxy</folder>
 	</files>
-	<!--
-	<media folder="media" destination="jw_disqus">
-		<filename>Disqus_300x128_24.png</filename>
-	</media>
-	-->
 </install>
