@@ -33,6 +33,8 @@ function qooratePrepareProxyCaller($action, $short) {
     // Our clients unique key and secret for qoorate api
     $key = QOORATE_API_KEY;
     $secret = QOORATE_API_SECRET;
+    $short = QOORATE_SHORTNAME;
+    
 
 
     $url = ''; // URL to request with proxy
@@ -82,7 +84,7 @@ function qooratePrepareProxyCaller($action, $short) {
         if ( $action == 'json')
         {
             $baseUrl = QOORATE_JSON_URI;
-            $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=demo' . '&location=' . $location;
+            $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $short . '&location=' . $location;
         } 
     }else{
         error_log ("get action set");

@@ -66,8 +66,9 @@ class plgContentJ_qrate extends JPlugin
        // Get plugin parameters
        $plugin = &JPluginHelper::getPlugin( 'content', $this->plg_name );
        $pluginParams = new JParameter( $plugin->params );
-       $q_api_key = $pluginParams->get('qoorateKey', '');
-       $q_api_secret = $pluginParams->get('qoorateSecret', '');
+       $q_api_key = $pluginParams->get('qKey', '');
+       $q_api_secret = $pluginParams->get('qSecret', '');
+       $q_shortname = $pluginParams->get('qShortname', '');
 
 	   $qoorate_embed = true;
 
@@ -79,6 +80,7 @@ class plgContentJ_qrate extends JPlugin
        // Set constants for q_post.php
        define( 'QOORATE_API_KEY', $q_api_key );
        define( 'QOORATE_API_SECRET', $q_api_secret );
+       define( 'QOORATE_SHORTNAME', $q_shortname );
 
        // get scripts to add to head
        $q_data = qooratePrepareProxyCaller( 'json', $q_api_key ); 
