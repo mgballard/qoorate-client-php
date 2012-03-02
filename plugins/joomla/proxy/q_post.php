@@ -3,13 +3,12 @@
 if (file_exists('q_post.conf.php')) {
     require_once 'q_post.conf.php';
 }
-
 // see if we are a web request or a local include
 if(isset($qoorate_embed)){
     error_log('we are an embed, let us be called manually');
 } else {
     error_log('web request');
-    qooratePrepareProxyCaller(null, null);
+    print qooratePrepareProxyCaller(null, null);
 }
 
 // url-ify an array of fields
@@ -23,10 +22,12 @@ function qoorate_urlify_fields($fields) {
 // figure out our url for the proxy call
 function qooratePrepareProxyCaller($action, $short) {
     $baseUrl = QOORATE_EMBED_URI; 
-
+    $location = '';
     if (isset($short)) {
         // remove any hashes in the url
         $location = md5($short);
+    }else{
+        $location=$_REQUEST['location'];
     }
     
     // Our clients unique key and secret for qoorate api
@@ -78,14 +79,11 @@ function qooratePrepareProxyCaller($action, $short) {
         error_log ($url);
     } else if ($is_embed) {
         error_log ("embed action set:" . $action);
-        if ( $action == 'json' && QOORATE_SERVER == 'brubeck' )
+        if ( $action == 'json')
         {
             $baseUrl = QOORATE_JSON_URI;
-            $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $key . '&location=' . $location;
-        } else 
-        {
-        $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&location=' . $location;
-        }
+            $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=demo' . '&location=' . $location;
+        } 
     }else{
         error_log ("get action set");
         $get_vars = '';
@@ -134,6 +132,7 @@ function qoorateProxyCaller($url, $is_post, $is_upload) {
     } else {
 
         if ($is_upload) {
+            echo("is upload");
             // we are a file upload
             // save our file to the temp directory
             // TODO: This only handles new browser XHR requests, not traditional file upload

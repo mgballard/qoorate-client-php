@@ -72,8 +72,8 @@ class plgContentJ_qrate extends JPlugin
 	   $qoorate_embed = true;
 
        // Includes
-       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.brubeck.conf.php');
-       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.brubeck.php');
+       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.conf.php');
+       require_once(dirname(__FILE__).DS.'proxy'.DS.'q_post.php');
 
 
        // Set constants for q_post.php
@@ -84,24 +84,24 @@ class plgContentJ_qrate extends JPlugin
        $q_data = qooratePrepareProxyCaller( 'json', $q_api_key ); 
        $q_data = json_decode($q_data);
        $q_head_scripts = $q_data->head;
-
+$test="";
        // Set the javascript configuration
        $document->addScriptDeclaration("
          var qoorateConfig = {
-             QOORATE_URI: 'http://qoorate.sethmurphy.com',
-             QOORATE_API_URI: 'http://qoorate.sethmurphy.com/q',
-             PROXY_URI: 'http://jm.summadish.com/plugins/content/proxy/q_post.brubeck.php',
+             QOORATE_URI: 'http://qrate.co',
+             QOORATE_API_URI: 'http://qrate.co/q',
+             PROXY_URI: 'http://jm.summadish.com/plugins/content/proxy/q_post.php',
 
              XHR_PROXY_URI: '/q/feed', // if client supports? not yet.
                                       // would append QOORATE_URI
              XHR_UPLOAD_URI: '/q/uploader', // if client supports? not yet.
                                             // would append QOORATE_URI
              POST_MAX_LEN: 1000
-         }
+         };
 
          var qoorateLang = {
              FLAG_SUCCESS: 'Thank you for your feedback.',
-             SIGNIN: 'Sign in using',
+             SIGNIN: " ."'". $test . "Sign in using',
              SIGNEDIN: 'Signed in via',    
              OK: 'OK',
              CANCEL: 'Cancel',
@@ -125,7 +125,7 @@ class plgContentJ_qrate extends JPlugin
              FLAG_ACTION_TYPES: [ [ '1', 'Spam' ], [ '2', 'Offensive' ], [ '3', 'Off Topic' ], [ '4', 'Disagree' ] ],
              SORT_ACTION_TYPES: [ [ '1', 'voting'], [ '2', 'recent'], [ '3', 'oldest'] ],
              LOGIN_TYPES: [ [ 'tw', 'Twitter', 'twitter' ], [ 'fb', 'Facebook', 'facebook' ], [ 'gp', 'Google+', 'googleplus' ] ]
-         }
+         };
    ");
 
        foreach ( $q_head_scripts as $script => $attrs )
