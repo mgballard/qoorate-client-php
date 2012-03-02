@@ -9,6 +9,9 @@ if( ! isset( $_COOKIE ) || ! array_key_exists( "QOOTID", $_COOKIE ) ) {
 ?>
 <?php
 $qoorate_embed = true;
+if (file_exists('q_post.conf.php')) {
+    include 'q_post.conf.php';
+}
 require_once('q_post.php'); 
 ?>
 <!DOCTYPE html>
@@ -17,13 +20,13 @@ require_once('q_post.php');
     <title>Qoorate test (Brubeck)</title>
     <!-- These values should really come from a call -->
     <?php
-    qooratePrepareProxyCaller('embed_head', 'page1')
+    echo(qooratePrepareProxyCaller('embed_head', 'page1'));
     ?>
 </head>
 <body>
     <section>
     <?php
-    qooratePrepareProxyCaller('embed_content', 'page1')
+    echo(qooratePrepareProxyCaller('embed_content', 'page1'));
     ?>
     </section>
 </body>
