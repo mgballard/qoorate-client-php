@@ -69,7 +69,7 @@ function qooratePrepareProxyCaller($action, $short) {
         } else if($action == 'uploader'){
             $baseUrl = QOORATE_UPLOADER_URI;
             $is_upload = true;
-        } else {
+        }  else {
             $baseUrl = QOORATE_FEED_URI;
         }
     
@@ -78,7 +78,14 @@ function qooratePrepareProxyCaller($action, $short) {
         error_log ($url);
     } else if ($is_embed) {
         error_log ("embed action set:" . $action);
+        if ( $action == 'json' && QOORATE_SERVER == 'brubeck' )
+        {
+            $baseUrl = QOORATE_JSON_URI;
+            $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $key . '&location=' . $location;
+        } else 
+        {
         $url = $baseUrl . '?action='. $action . '&q_api_key=' . $key . '&q_api_secret=' . $secret . '&location=' . $location;
+        }
     }else{
         error_log ("get action set");
         $get_vars = '';

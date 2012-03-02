@@ -94,7 +94,7 @@ function qooratePrepareProxyCaller($action, $short) {
         $url = $baseUrl . ($get_vars =='' ? '' : '?' . $get_vars);
         error_log ($url);
     }
-    return qoorateProxyCaller($url, $is_post, $is_upload);
+    qoorateProxyCaller($url, $is_post, $is_upload);
 }
 
 function qoorateProxyCaller($url, $is_post, $is_upload) {
@@ -202,6 +202,6 @@ function qoorateProxyCaller($url, $is_post, $is_upload) {
 
         curl_close( $ch );
 
-        return $contents;
+        print $contents;
     }
 }
