@@ -8,6 +8,7 @@ Stable tag: 3.4.0
 Qoorate contribution plugin.
 
 == Description ==
+This plugin enables you to add the Qoorate Contribution Platform to your Wordpress installation replacing the built in commenting system.
 
 == Installation ==
 
