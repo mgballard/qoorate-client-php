@@ -1,0 +1,1 @@
+You may zip the entire contents of the qoorate directory to create a zip file for easy installation.
