@@ -8,3 +8,5 @@ define('QOORATE_JSON_URI', 'http://qoorate.sethmurphy.com/q/embed');
 define('QOORATE_API_KEY', '12345');
 define('QOORATE_API_SECRET', '54321');
 define('QOORATE_SHORTNAME', '12345');
+define('QOORATE_DEBUG', False);
+
