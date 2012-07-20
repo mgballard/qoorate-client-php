@@ -1,41 +1,95 @@
 <?PHP
-// pull in our configuration
-if (file_exists('q_post.conf.php')) {
-    require_once 'q_post.conf.php';
-}
 // see if we are a web request or a local include
 if(isset($qoorate_embed)){
-    error_log('we are an embed, let us be called manually');
+    log_error('we are an embed, let us be called manually');
+    if (file_exists('q_post.conf.php')) {
+        log_error('just read our q_post.conf.php');
+        require_once 'q_post.conf.php';
+    }
 } else {
-    error_log('web request');
+    log_error('web request');
+    // pull in our configuration
+    if (file_exists('q_post.conf.php')) {
+        require_once 'q_post.conf.php';
+    }
     print qooratePrepareProxyCaller(null, null);
 }
 
 // url-ify an array of fields
 function qoorate_urlify_fields($fields) {
+    // we need to be prepared for magic quotes if they are turned on
+    if (get_magic_quotes_gpc()) {
+        foreach ($fields as $k => $v) {
+            unset($fields[$k]);
+            if (is_array($v)) {
+                $fields[stripslashes($k)] = $v;
+                $fields[] = &$fields[stripslashes($k)];
+            } else {
+                $fields[stripslashes($k)] = stripslashes($v);
+            }
+        }
+    }
+
     $fields_string = '';
-    foreach($fields as $key=>$value) { $fields_string .= $key.'='.urlencode($value).'&'; }
+    foreach($fields as $key=>$value) {
+        log_error($value);
+        log_error("urlencode('$value')");
+        $fields_string .= $key.'='.urlencode($value).'&';
+    }
     $fields_string = rtrim($fields_string,'&');
     return $fields_string;    
 }
 
+// only log our messages in debug mode
+function log_error($msg) {
+    if(QOORATE_DEBUG == True) {
+        error_log($msg);
+    }
+}
 // figure out our url for the proxy call
 function qooratePrepareProxyCaller($action, $short) {
+    log_error('QOORATE_API_KEY');
+    log_error(QOORATE_API_KEY);
+    
+    log_error('QOORATE_API_SECRET');
+    log_error(QOORATE_API_SECRET);
+    
+    log_error('QOORATE_SHORTNAME');
+    log_error(QOORATE_SHORTNAME);
+    
+    log_error('QOORATE_BASE_URI');
+    log_error(QOORATE_BASE_URI);
+    
+    log_error('QOORATE_UPLOADER_URI');
+    log_error(QOORATE_UPLOADER_URI);
+    
+    log_error('QOORATE_FEED_URI');
+    log_error(QOORATE_FEED_URI);
+    
+    log_error('QOORATE_EMBED_URI');
+    log_error(QOORATE_EMBED_URI);
+    
+    log_error('QOORATE_JSON_URI');
+    log_error(QOORATE_JSON_URI);
+
     $baseUrl = QOORATE_EMBED_URI; 
     $location = '';
     if (isset($short)) {
-        // remove any hashes in the url
+        log_error('location from short');
         $location = md5($short);
-    }else{
+    } else if (isset($_REQUEST['location'])){
+        log_error('location from request');
         $location=$_REQUEST['location'];
+    } else {
+        log_error('location from url');
+        $location = md5($_SERVER['REQUEST_URI']);
     }
-    
+    log_error('location:' . $location);
+
     // Our clients unique key and secret for qoorate api
     $key = QOORATE_API_KEY;
     $secret = QOORATE_API_SECRET;
     $short = QOORATE_SHORTNAME;
-    
-
 
     $url = ''; // URL to request with proxy
     
@@ -44,27 +98,35 @@ function qooratePrepareProxyCaller($action, $short) {
     $is_upload = false;
     $is_post = false;
     if(strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+        log_error('is_post');
         $is_post = true;
     }
     // set our flags and get our action
     // all requests need an action
     if(isset($action)){
         // we are a the first call to a page
+        log_error('is embed');
         $is_embed = true;
     } else if(isset($_POST['action'])) {
         // we are a jquery request
         $action = $_POST['action'];
         $is_post = true;
+        log_error('action from post:' . $action);
     } else if(isset($_GET['action'])) {
         // we don't usually get here
         // the client should use JSONP for AJAX get requests
         // or access resources directly from api server
         $action = $_GET['action'];
-    }
+        log_error('action from get:' . $action);
+    } else {
+        $is_embed = true;
+        $action='embed_html';
+        log_error('default action:' . $action);
+    }  
     
     if($is_post){
-        error_log ("post action set");
-        error_log ($_POST["action"]);
+        log_error ("post action set");
+        log_error ($_POST["action"]);
         $get_vars = '';
     
         if($action == 'embed_content' || $action == 'embed_html'){
@@ -78,16 +140,19 @@ function qooratePrepareProxyCaller($action, $short) {
     
         $get_vars = qoorate_urlify_fields($_GET);
         $url = $baseUrl . ($get_vars =='' ? '' : '?' . $get_vars);
-        error_log ($url);
+        log_error ('POST:'. $url);
     } else if ($is_embed) {
-        error_log ("embed action set:" . $action);
+        log_error ("embed action set:" . $action);
         if ( $action == 'json')
         {
             $baseUrl = QOORATE_JSON_URI;
             $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $short . '&location=' . $location;
-        } 
+        } else {
+            $baseUrl = QOORATE_EMBED_URI;
+            $url = $baseUrl . '?'.'q_api_key=' . $key . '&q_api_secret=' . $secret . '&q_short_name=' . $short . '&location=' . $location. '&action=' . $action;
+        }
     }else{
-        error_log ("get action set");
+        log_error ("get action set");
         $get_vars = '';
         if($action == 'embed_content' || $action == 'embed_html'){
             $baseUrl = QOORATE_EMBED_URI; 
@@ -99,13 +164,12 @@ function qooratePrepareProxyCaller($action, $short) {
         
         $get_vars = qoorate_urlify_fields($_GET);
         $url = $baseUrl . ($get_vars =='' ? '' : '?' . $get_vars);
-        error_log ($url);
     }
+    log_error('FETCHING URL:' . $url);
     return qoorateProxyCaller($url, $is_post, $is_upload);
 }
 
 function qoorateProxyCaller($url, $is_post, $is_upload) {
-    
     // Change these configuration options if needed, see above descriptions for info.
     $valid_url_regex = '/.*/';
 
@@ -134,7 +198,6 @@ function qoorateProxyCaller($url, $is_post, $is_upload) {
     } else {
 
         if ($is_upload) {
-            echo("is upload");
             // we are a file upload
             // save our file to the temp directory
             // TODO: This only handles new browser XHR requests, not traditional file upload
@@ -174,8 +237,8 @@ function qoorateProxyCaller($url, $is_post, $is_upload) {
             // delete the file
             unlink($temp_file_name);
 
-            error_log($post);
-            error_log(strlen($post));
+            log_error($post);
+            log_error(strlen($post));
         }else {
             // prepare our post data for the content
             $post = qoorate_urlify_fields($_POST);
@@ -185,9 +248,10 @@ function qoorateProxyCaller($url, $is_post, $is_upload) {
         $ch = curl_init( $url );
         if ($is_post) {
             // we are a post request
-            error_log(print_r($_POST, true));
+            log_error(print_r($_POST, true));
             curl_setopt( $ch, CURLOPT_POST, 1 );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, $post );
+            log_error('is_post!');
         }
 
         if (isset($cookie)) {
@@ -204,7 +268,7 @@ function qoorateProxyCaller($url, $is_post, $is_upload) {
 
         $response = curl_exec( $ch );
 
-        error_log( $response );
+        log_error('RESPONSE:' . $response);
 
         list( $header, $contents ) = preg_split( '/([\r\n][\r\n])\\1/', $response, 2 );
 
